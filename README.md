@@ -8,3 +8,5 @@
     - Go to [http:localhost:5555/](http:localhost:5555/) to view the Postgres database
 
 #### Let me know if you have any questions! 🙏
+
+<img width="1174" alt="Screenshot 2024-04-03 at 2 08 10 PM" src="https://github.com/HomemadeToast57/spotimedia-data-science/assets/54961512/3ae2891d-daad-4005-90bd-9ed1b33a9a12">
