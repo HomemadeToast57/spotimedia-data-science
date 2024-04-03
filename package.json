@@ -1,0 +1,42 @@
+{
+  "name": "spotimedia-core",
+  "version": "1.0.0",
+  "description": "Application for analyzing the correlation between social media and streaming data on Spotify.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "nohup npx prisma generate >/dev/null 2>&1 &",
+    "studio": "nohup npx prisma studio --port 5555 >/dev/null 2>&1 &",
+    "start": "npm run generate && npm run studio && echo Browse the database at http://localhost:5555/ && nodemon"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.17",
+    "@types/node-cron": "^3.0.11",
+    "bull": "^4.11.4",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.2",
+    "prettier": "^3.0.3",
+    "prettier-plugin-prisma": "^5.0.0",
+    "prisma": "^5.5.2",
+    "suppress-experimental-warnings": "^1.1.17",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@bull-board/express": "^5.9.1",
+    "@prisma/client": "^5.5.2",
+    "axios": "^1.6.0",
+    "body-parser": "^1.20.2",
+    "canvas": "^2.11.2",
+    "chalk": "^5.3.0",
+    "chart.js": "^4.4.1",
+    "cors": "^2.8.5",
+    "localtunnel": "^2.0.2",
+    "querystringify": "^2.2.0"
+  }
+}

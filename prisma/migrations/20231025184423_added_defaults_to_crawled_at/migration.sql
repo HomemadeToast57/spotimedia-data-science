@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "SpotifyAlbum" ALTER COLUMN "crawled_at" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "SpotifyArtist" ALTER COLUMN "crawled_at" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "SpotifyPlaylist" ALTER COLUMN "crawled_at" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "SpotifyTrack" ALTER COLUMN "crawled_at" SET DEFAULT CURRENT_TIMESTAMP;

@@ -1,0 +1,47 @@
+# Usage
+#   Start:              docker compose up
+#   Start (Detached):   docker compose up -d
+#   Stop:               docker compose stop
+#   Stop + Remove:      docker compose down
+
+version: "3.8"
+
+name: spotimedia
+services:
+  app:
+    build: .
+    container_name: spotimedia_app
+    # command: npm run start
+    command: sleep infinity
+    ports:
+      - 1234:1234
+      - 5555:5555 # for prisma studio
+      - 5173:5173
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:16
+    restart: always
+    container_name: spotimedia_db
+    environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DB=mydb
+    ports:
+      - '5432:5432'
+  redis:
+    image: redis:latest
+    container_name: spotimedia_redis
+    ports:
+      - '6379:6379'
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+    ports:
+      - "8081:8081"
+

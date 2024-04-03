@@ -1,0 +1,236 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource mydb {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Define a model for a Reddit Post
+model RedditPost {
+  id                   Int                    @id @default(autoincrement()) // Unique identifier for our database
+  redditId             String                 @unique // Unique identifier for the post on Reddit
+  subredditId          String // Foreign key to Subreddit
+  subreddit            Subreddit              @relation(fields: [subredditId], references: [name]) // Relation to Subreddit model
+  author               String // Username of the author
+  authorFullname       String // Full identifier for the author
+  title                String // Title of the post
+  textContent          String? // Content of the post
+  ups                  Int // Number of upvotesNP
+  downs                Int // Number of downvotes
+  upvoteRatio          Float // Ratio of upvotes
+  totalAwardsReceived  Int // Total number of awards received
+  score                Int // Overall score of the post
+  viewCount            Int? // Number of views
+  linkFlairText        String? // Text of the post's flair
+  subredditSubscribers Int // Number of subscribers in the subreddit
+  over18               Boolean // Indicates if the post is for users over 18
+  createdAt            Int // Timestamp when the post was created
+  url                  String // URL of the post
+  domain               String // Domain of the post's link
+  isArchived           Boolean // Indicates if the post is archived
+  isVideo              Boolean // Indicates if the post is a video
+  permalink            String // URL to be appended to 'https://reddit.com'
+  numComments          Int // Number of comments on the post
+  media                String? // Media associated with the post
+  crawledAt            DateTime               @default(now()) // Time the RedditPost was crawled
+  comments             RedditComment[]
+  queries              QueriesOnRedditPosts[]
+}
+
+model RedditComment {
+  id              Int             @id @default(autoincrement()) // Unique identifier for our database
+  redditId        String          @unique // Unique identifier for the comment on Reddit
+  postId          String // Foreign key to RedditPost
+  post            RedditPost      @relation(fields: [postId], references: [redditId]) // Relation to RedditPost model
+  author          String // Username of the author
+  authorFullname  String // Full identifier for the author
+  textContent     String // Content of the comment
+  ups             Int // Number of upvotes
+  downs           Int // Number of downvotes
+  score           Int // Overall score of the comment
+  isArchived      Boolean // Indicates if the comment is archived
+  createdAt       Int // Timestamp when the comment was created
+  permalink       String // URL to be appended to 'https://reddit.com'
+  numReplies      Int // Number of replies to the comment
+  parentCommentId String? // Foreign key to parent RedditComment
+  parentComment   RedditComment?  @relation("ChildComments", fields: [parentCommentId], references: [redditId]) // Relation to parent RedditComment model
+  childComments   RedditComment[] @relation("ChildComments") // Back-relation to allow for accessing child comments
+  crawledAt       DateTime        @default(now()) // Time the RedditComment was crawled
+}
+
+model Subreddit {
+  id                Int          @id @default(autoincrement()) // Unique identifier for our database
+  posts             RedditPost[] // Back-relation to allow for accessing related posts
+  displayName       String       @unique // Name of the subreddit
+  title             String // Title of the subreddit
+  publicDescription String // Short public description of the subreddit
+  subscribers       Int // Number of subscribers
+  activeUserCount   Int // Number of active users
+  name              String       @unique // Unique name of the subreddit on Reddit
+  created           Int // Timestamp when the subreddit was created
+  description       String // Detailed description of the subreddit
+  url               String // URL of the subreddit
+  bannerImg         String? // Banner image URL
+  communityIcon     String? // Community icon URL
+  over18            Boolean // Indicates if the subreddit is for users over 18
+  lang              String // Language of the subreddit
+  whitelistStatus   String? // Whitelist status of the subreddit
+  subredditType     String // Type of the subreddit (public, private, restricted)
+  headerImg         String? // Header image URL
+  iconImg           String // Icon image URL
+  crawledAt         DateTime     @default(now()) // Time the Subreddit was crawled
+}
+
+model YoutubeVideo {
+  id           Int                      @id @default(autoincrement()) // Unique identifier for our database
+  videoId      String                   @unique
+  title        String
+  description  String
+  publishedAt  DateTime
+  channelId    String
+  channelTitle String
+  crawledAt    DateTime                 @default(now())
+  comments     YoutubeComment[]
+  queries      QueriesOnYoutubeVideos[]
+}
+
+model YoutubeComment {
+  id                       Int              @id @default(autoincrement()) // Unique identifier for our database
+  commentId                String           @unique
+  videoId                  String
+  video                    YoutubeVideo     @relation(fields: [videoId], references: [videoId])
+  commenterId              String
+  commenterName            String
+  commenterProfileImageUrl String
+  textContent              String
+  textDisplay              String
+  publishedAt              DateTime
+  likeCount                Int
+  crawledAt                DateTime         @default(now())
+  parentId                 String?
+  parentComment            YoutubeComment?  @relation("Replies", fields: [parentId], references: [commentId])
+  replies                  YoutubeComment[] @relation("Replies")
+}
+
+// Define a model for a Spotify Artist
+model SpotifyArtist {
+  id         Int            @id @default(autoincrement()) // Unique identifier for our database
+  artistId   String         @unique // Unique identifier for the artist on Spotify
+  name       String // Name of the artist
+  popularity Int // Popularity of the artist on Spotify
+  genres     String[] // List of genres associated with the artist
+  albums     SpotifyAlbum[] // Back-relation to allow for accessing related albums
+  tracks     SpotifyTrack[] // Back-relation to allow for accessing related tracks
+  crawledAt  DateTime       @default(now()) // Time the SpotifyArtist was crawled
+}
+
+// Define a model for a Spotify Track
+model SpotifyTrack {
+  id            Int                        @id @default(autoincrement()) // Unique identifier for our database
+  trackId       String                     @unique // Unique identifier for the track on Spotify
+  name          String // Name of the track
+  albumId       String // Foreign key to SpotifyAlbum
+  album         SpotifyAlbum               @relation(fields: [albumId], references: [albumId]) // Relation to SpotifyAlbum model
+  artists       SpotifyArtist[] // List of artists associated with the track
+  durationMs    Int // Duration of the track in milliseconds
+  popularity    Int // Popularity of the track on Spotify
+  explicit      Boolean // Indicates if the track contains explicit content
+  previewUrl    String? // URL to a 30 second preview of the track
+  crawledAt     DateTime                   @default(now()) // Time the SpotifyTrack was crawled
+  audioFeatures SpotifyTrackAudioFeatures?
+  playlists     SpotifyTracksInPlaylists[]
+  // query         Query[]
+}
+
+model SpotifyTrackAudioFeatures {
+  id               Int          @id @default(autoincrement()) // Unique identifier for our database
+  trackId          String       @unique // Unique identifier for the track on Spotify
+  track            SpotifyTrack @relation(fields: [trackId], references: [trackId]) // Relation to SpotifyTrack model
+  analysisUrl      String
+  durationMs       Int
+  danceability     Float
+  energy           Float
+  key              Int
+  loudness         Float
+  mode             Int
+  speechiness      Float
+  acousticness     Float
+  instrumentalness Float
+  liveness         Float
+  valence          Float
+  tempo            Float
+  timeSignature    Int
+  crawledAt        DateTime     @default(now())
+}
+
+// Define a model for a Spotify Album
+model SpotifyAlbum {
+  id          Int            @id @default(autoincrement()) // Unique identifier for our database
+  albumId     String         @unique
+  name        String // Name of the album
+  artistId    String // Foreign key to SpotifyArtist
+  artist      SpotifyArtist  @relation(fields: [artistId], references: [artistId]) // Relation to SpotifyArtist model
+  tracks      SpotifyTrack[] // Back-relation to allow for accessing related tracks
+  releaseDate String // Release date of the album
+  totalTracks Int // Total number of tracks on the album
+  coverUrl    String? // URL to the album cover image
+  crawledAt   DateTime       @default(now()) // Time the SpotifyAlbum was crawled
+}
+
+// Define a model for a Spotify Playlist
+model SpotifyPlaylist {
+  id            Int                        @id @default(autoincrement()) // Unique identifier for our database
+  playlistId    String                     @unique // Unique identifier for the playlist on Spotify
+  name          String // Name of the playlist
+  ownerName     String // Name of the playlist owner
+  public        Boolean // Indicates if the playlist is public
+  collaborative Boolean // Indicates if the playlist is collaborative
+  description   String? // Description of the playlist
+  coverUrl      String? // URL to the playlist cover image
+  crawledAt     DateTime                   @default(now()) // Time the SpotifyPlaylist was crawled
+  tracks        SpotifyTracksInPlaylists[]
+}
+
+model SpotifyTracksInPlaylists {
+  trackId    String
+  track      SpotifyTrack    @relation(fields: [trackId], references: [trackId])
+  playlistId String
+  playlist   SpotifyPlaylist @relation(fields: [playlistId], references: [playlistId])
+
+  @@id([trackId, playlistId])
+}
+
+model Query {
+  id            Int                      @id @default(autoincrement())
+  trackId       String
+  // track         SpotifyTrack   @relation(fields: [trackId], references: [trackId])
+  query         String
+  createdAt     DateTime                 @default(now())
+  redditPosts   QueriesOnRedditPosts[]
+  youtubeVideos QueriesOnYoutubeVideos[]
+  toxicityRatio Float?
+}
+
+model QueriesOnRedditPosts {
+  queryId Int
+  query   Query      @relation(fields: [queryId], references: [id])
+  postId  Int
+  post    RedditPost @relation(fields: [postId], references: [id])
+
+  @@id([queryId, postId])
+}
+
+model QueriesOnYoutubeVideos {
+  queryId Int
+  query   Query        @relation(fields: [queryId], references: [id])
+  videoId Int
+  video   YoutubeVideo @relation(fields: [videoId], references: [id])
+
+  @@id([queryId, videoId])
+}
